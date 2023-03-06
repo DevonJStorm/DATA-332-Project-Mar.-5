@@ -1,2 +1,163 @@
 # DATA-332-Project-Mar.-5
 Contains nyclfights13 data
+#SUMMARY OF PROJECT: With this dataset, I have decided to perform a comparison
+#between two specific holidays and how they influenced the handling of flights
+#travelling in and out of the New York City area during Christmas Day and
+#Thanksgiving Day in the year 2013. These holidays were chosen due to the larger
+#than usual demand on travel services. With this data, I wanted to learn which  
+#holiday has less chances to see delays departing from the three main airports 
+#serving NYC: JFK, LGA, and Newark. Depending on which holiday has more flights 
+#on that day, I can hypothesize that there would be a higher number of delays. 
+#In order to help this, I needed to narrow down the data, and organize it into 
+#information that will be relevant.I also conducted additonal research on weather
+#conditions in the NYC area during this time from data collected by the NWS, which
+#shows that within the NYC during both holidays, weather conditions were stable and
+#did not play a significant role to contribute to delays.
+
+library(nycflights13)
+library(tidyverse)
+library(ggplot2)
+
+rm(list = ls())
+
+flights <- nycflights13::flights
+
+df_dec_25 <- flights %>%
+  dplyr::filter((month == 12)&(day == 25))
+
+#Flights during Christmas Day 2013.
+
+df_nov_28 <- flights %>%
+  dplyr::filter((month == 11)&(day == 28))
+
+#Flights during Thanksgiving 2013
+
+df_christmas <- flights %>%
+  dplyr::filter((month == 12)&((day == 21)|(day == 30)))
+
+#Flights during the period from Dec. 21 to Dec. 30
+
+df_thanksgiving <- flights %>%
+  dplyr::filter((month == 11)&((day == 26)|(day == 30)))
+
+#Flights during the period from Nov. 26 to Nov. 30
+
+df_dec_nov <- flights %>%
+  dplyr::filter((month == 12)|(month == 11))
+
+#All flights between Nov. 1 and Dec. 31
+
+df_nov_dec_delays <- flights %>%
+  dplyr::filter((arr_delay >= 90)&(dep_delay >= 90),(month == 11)|(month == 12))
+
+#Delays Over 90 Minutes between Nov. 1 and Dec. 31 2013
+
+df_christmas_delays <- flights %>%
+  dplyr::filter((dep_delay >= 90)&(arr_delay >= 90), (month == 12)&(day == 25))
+
+#Delays over 90 Minutes on Christmas Day 2013
+
+df_tg_delays <- flights %>%
+  dplyr::filter((dep_delay >= 90)&(arr_delay >= 90),(month == 11)&(day == 28))
+
+#Delays over 90 Minutes on Thanksgiving Day 2013
+
+df <- arrange(flights, year, month, day)
+
+df <- arrange(flights, desc(arr_delay))
+
+df <- flights
+
+#SUMMARY OF DATA CLEANING: The goal is to compare specially arrival and departure 
+#times during Christmas Day and Thanksgiving Day in 2013. In addition, I also wanted
+#to compare the data between days relating to how many flights experienced either
+#delays departing or arriving above 90 minutes, often considered a significant delay.
+#Therefore, I have created several dataframes to narrow down the data I was specifically
+#searching for on those days. The five larger dataframes are comprised of information
+#relating to all flights during the actual holidays, a period around both holidays, and
+#a summary of all flights occurring for the months of November and December. The three
+#smaller datasets consists of flights where both the arrival and departure times have 
+#exceeded 90 minutes.
+
+ggplot(data = df_christmas, aes(x = dep_time, y = dep_delay)) +
+  geom_point(colour = "red") +
+  geom_smooth(formula = y ~ poly(x,10), method = "lm", se = TRUE, level = 0.95) +
+  geom_hline(yintercept = 90, linetype = "dashed", color = "red") +
+  labs(title = "Comparing Scheduled Departue Times to Minutes Delayed",
+       subtitle = "Data From NYC Metro Airports On Christmas Day-December 25, 2013",
+       x = "Scheduled Departure Time (24h)",
+       y = "Departure Delay in Minutes")
+
+#SUMMARY OF CHART 1:Chart one compares a flight's scheduled departure time from NYC
+#to how many minutes the flight was delayed when departing on Christmas Day in 2013.
+#The Scheduled departure times are along the x-axis and is measured using the 24-hour
+#clock. The delay of departure times is measured in minutes, based on the scheduled
+#time, and along the y-axis. A dashed red line has been placed with a y-intercept 
+#of 90, with points above considered to have experienced a significant delay of over
+#90 minutes from scheduled departure.
+
+ggplot(data = df_christmas, aes(x = arr_time, y = arr_delay)) +
+  geom_point(colour = "green") +
+  geom_smooth(formula = y ~ poly(x,10), method = "lm", se = TRUE, level = 0.95) +
+  geom_hline(yintercept = 90, linetype = "dashed", color = "red") +
+  labs(title = "Comparing Scheduled Arrival Times to Minutes Delayed",
+       subtitle = "Data From NYC Metro Airports On Christmas Day-December 25, 2013",
+       x = "Scheduled Arrival Time (24h)",
+       y = "Arrival Delay in Minutes")
+
+#SUMMARY OF CHART 2:Chart two compares a flight's scheduled arrival time to their
+#destinations to how many minutes the flight was delayed when arriving on Christmas
+#Day in 2013.The scheduled arrival times are along the x-axis and is measured using 
+#the 24-hour clock.The delay of arrival times is measured in minutes, based on the
+#scheduled time, and along the y-axis. A dashed red line has been placed with a y-
+#intercept of 90, with points above considered to have experienced a significant delay
+#of over 90 minutes from scheduled arrival.
+
+ggplot(data = df_thanksgiving, aes(x = dep_time, y = dep_delay)) +
+  geom_point(colour = "orange") +
+  geom_smooth(formula = y ~ poly(x,10), method = "lm", se = TRUE, level = 0.95) +
+  geom_hline(yintercept = 90, linetype = "dashed", color = "red") +
+  labs(title = "Comparing Scheduled Departue Times to Minutes Delayed",
+       subtitle = "Data From NYC Metro Airports On Thanksgiving Day-November 28, 2013",
+       x = "Scheduled Departure Time (24h)",
+       y = "Departure Delay in Minutes")
+
+#SUMMARY OF CHART 3:Chart three compares a flight's scheduled departure time from NYC
+#to how many minutes the flight was delayed when departing on Thanksgiving Day in 2013.
+#The Scheduled departure times are along the x-axis and is measured using the 24-hour
+#clock. The delay of departure times is measured in minutes, based on the scheduled
+#time, and along the y-axis. A dashed red line has been placed with a y-intercept 
+#of 90, with points above considered to have experienced a significant delay of over
+#90 minutes from scheduled departure.
+
+ggplot(data = df_thanksgiving, aes(x = arr_time, y = arr_delay)) +
+  geom_point(colour = "cyan") +
+  geom_smooth(formula = y ~ poly(x,10), method = "lm", se = TRUE, level = 0.95) +
+  geom_hline(yintercept = 90, linetype = "dashed", color = "red") +
+  labs(title = "Comparing Scheduled Arrival Times to Minutes Delayed",
+       subtitle ="Data From NYC Metro Airports On Thanksgiving Day-November 28, 2013",
+       x = "Scheduled Arrival Time (24h)",
+       y = "Arrival Delay in Minutes")
+
+#SUMMARY OF CHART 4:Chart four compares a flight's scheduled arrival time to their
+#destinations to how many minutes the flight was delayed when arriving on Thanksgiving
+#Day in 2013.The scheduled arrival times are along the x-axis and is measured using 
+#the 24-hour clock.The delay of arrival times is measured in minutes, based on the
+#scheduled time, and along the y-axis. A dashed red line has been placed with a y-
+#intercept of 90, with points above considered to have experienced a significant delay
+#of over 90 minutes from scheduled arrival.
+
+
+
+#CONCLUSION: Based on the data collected, tidied, and plotted across these four charts,
+#that there was a higher rate of delays recorded during Christmas Day compared to
+#Thanksgiving Day during the year 2013 at New York City airports. As stated before,
+#local weather conditions were stable for flying, so it is possible that more delays 
+#occuring during Christmas due to either poor weather conditions in destination cities,
+#or a possible shortage of staff at NYC airports. What I found interesting, was during
+#Thanksgiving Day, there was a higher number of flights, while also maintaining a lower
+#number of delayed flights leaving NYC, and leaves me to speculate that destination cities
+#have a chance to having more favorable weather for flying on Thanksgiving as opposed to
+#Christmas, or that more staff was on-hand during that time. To conclude, the data shows
+#despite a higher number of flights occurring, Thanksgiving saw significant fewer delays in
+#comparison to Christmas during the year 2013.
